@@ -1,15 +1,18 @@
 name: Android CI
 
+# Chỉ build để kiểm tra code biên dịch được.
+# Bản APK phát hành được build và ký trên máy cá nhân bằng khóa cố định,
+# rồi tải lên GitHub Releases (xem README > Phát hành phiên bản mới).
+
 on:
   push:
     branches: [ main ]
-    tags: [ 'v*' ]
   pull_request:
     branches: [ main ]
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build:
@@ -27,50 +30,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Require signing key for releases
-        env:
-          KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
-        if: startsWith(github.ref, 'refs/tags/v') && env.KEYSTORE_BASE64 == ''
-        run: |
-          echo "::error::Thiếu secret SIGNING_KEYSTORE_BASE64 — không phát hành bản ký bằng debug key."
-          exit 1
-
-      - name: Restore signing key
-        env:
-          KEYSTORE_BASE64: ${{ secrets.SIGNING_KEYSTORE_BASE64 }}
-        if: env.KEYSTORE_BASE64 != ''
-        run: |
-          echo "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
-          echo "SIGNING_STORE_FILE=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
-
-      - name: Build APK
-        env:
-          SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-          SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
-          SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+      - name: Build
         run: |
           chmod +x gradlew
           ./gradlew assembleDebug assembleRelease --stacktrace
-
-      - name: Remove signing key
-        if: always()
-        run: rm -f "$RUNNER_TEMP/release.jks"
-
-      - name: Rename APK
-        run: |
-          mkdir -p dist
-          cp app/build/outputs/apk/release/app-release.apk dist/QuanLyChiTieu.apk
-          cp app/build/outputs/apk/debug/app-debug.apk dist/QuanLyChiTieu-debug.apk
-
-      - name: Upload APK artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: QuanLyChiTieu-apk
-          path: dist/*.apk
-
-      - name: Publish GitHub Release
-        if: startsWith(github.ref, 'refs/tags/v')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: dist/QuanLyChiTieu.apk
-          generate_release_notes: true

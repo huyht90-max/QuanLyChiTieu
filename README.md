@@ -24,12 +24,12 @@
 
 ## 📥 Cài đặt
 
-**Cách 1 — Tải APK:** vào mục [Releases](../../releases) và tải file `QuanLyChiTieu.apk`, mở trên điện thoại để cài (cho phép "Cài ứng dụng không rõ nguồn gốc" nếu được hỏi).
+**Cách 1 — Tải APK:** vào mục [Releases](../../releases/latest) và tải file `ChiTieu-x.y.z.apk`, mở trên điện thoại để cài (cho phép "Cài ứng dụng không rõ nguồn gốc" nếu được hỏi). Mọi bản phát hành đều ký cùng một khóa nên **cập nhật cài đè được, không mất dữ liệu**.
 
 **Cách 2 — Tự build:**
 
 ```bash
-git clone https://github.com/<tài-khoản>/QuanLyChiTieu.git
+git clone https://github.com/huyht90-max/QuanLyChiTieu.git
 cd QuanLyChiTieu
 ./gradlew assembleDebug        # Windows: gradlew.bat assembleDebug
 ```
@@ -62,14 +62,23 @@ app/src/main/java/vn/quanlychitieu/app/
 
 ## 🚀 Phát hành phiên bản mới
 
-GitHub Actions tự build APK mỗi lần push lên `main` (xem tab **Actions** → Artifacts). Để tạo bản Release có file APK đính kèm:
+Bản phát hành được build và **ký trên máy cá nhân** bằng khóa cố định, để các bản cập nhật luôn cài đè được lên nhau. GitHub Actions chỉ build để kiểm tra code mỗi lần push.
 
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
+1. Tăng `versionCode` và `versionName` trong `app/build.gradle.kts`.
+2. Tạo file `keystore.properties` ở thư mục gốc (đã bị `.gitignore` chặn, **không commit**):
+   ```properties
+   storeFile=/đường/dẫn/tới/khoa.jks
+   storePassword=...
+   keyAlias=...
+   keyPassword=...
+   ```
+3. Build và đăng lên Releases:
+   ```bash
+   ./gradlew assembleRelease
+   gh release create v1.0.2 app/build/outputs/apk/release/app-release.apk#ChiTieu-1.0.2.apk --generate-notes
+   ```
 
-> Bản release hiện được ký bằng debug key để cài đặt trực tiếp. Khi muốn đưa lên Google Play, hãy tạo keystore riêng và cấu hình `signingConfigs` trong `app/build.gradle.kts`.
+> Không có `keystore.properties` thì bản release vẫn build được nhưng ký bằng debug key, không cài đè được lên bản chính thức.
 
 ## 📄 Giấy phép
 
