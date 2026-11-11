@@ -14,3 +14,6 @@
 *.keystore
 !debug.keystore
 .kotlin/
+keystore.properties
+*.p12
+*.pfx
