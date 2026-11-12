@@ -15,7 +15,7 @@
 5. GitHub Actions (`.github/workflows/android.yml`) tự build, ký bằng khóa từ Secrets, kiểm tra vân tay chứng chỉ và tạo Release kèm `ChiTieu-<version>.apk`. Theo dõi: `gh run list`, `gh run watch <id>`.
 6. Gửi người dùng link: https://github.com/huyht90-max/QuanLyChiTieu/releases/latest
 
-Nếu build tag bị lỗi: sửa trên `main`, rồi chạy lại bằng `gh workflow run android.yml --ref main -f tag=v1.0.3` (không cần xóa tag).
+Nếu không đẩy được tag (vd: phiên Claude trên cloud bị chặn đẩy tag) hoặc build tag bị lỗi: sửa trên `main`, rồi chạy tay workflow trên `main` với ô `tag` (vd `gh workflow run android.yml --ref main -f tag=v1.0.3`). Workflow build từ `main`, kiểm tra `versionName` khớp tag, và tự tạo tag nếu chưa có (không cần xóa tag cũ).
 
 ## Khóa ký — quan trọng
 - Bản phát hành phải ký bằng khóa có SHA-256 `4d915e75e54226f8325bf0ed3a2bd1ed2890aa94bc2f87bc3686a771cbf4221c`, nếu không người dùng không cài đè được.
