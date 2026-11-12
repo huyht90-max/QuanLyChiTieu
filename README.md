@@ -62,23 +62,19 @@ app/src/main/java/vn/quanlychitieu/app/
 
 ## 🚀 Phát hành phiên bản mới
 
-Bản phát hành được build và **ký trên máy cá nhân** bằng khóa cố định, để các bản cập nhật luôn cài đè được lên nhau. GitHub Actions chỉ build để kiểm tra code mỗi lần push.
+GitHub Actions build mỗi lần push lên `main` để kiểm tra code. Để phát hành bản mới:
 
-1. Tăng `versionCode` và `versionName` trong `app/build.gradle.kts`.
-2. Tạo file `keystore.properties` ở thư mục gốc (đã bị `.gitignore` chặn, **không commit**):
-   ```properties
-   storeFile=/đường/dẫn/tới/khoa.jks
-   storePassword=...
-   keyAlias=...
-   keyPassword=...
-   ```
-3. Build và đăng lên Releases:
+1. Tăng `versionCode` và `versionName` trong `app/build.gradle.kts`, commit và push.
+2. Tạo tag trùng với phiên bản:
    ```bash
-   ./gradlew assembleRelease
-   gh release create v1.0.2 app/build/outputs/apk/release/app-release.apk#ChiTieu-1.0.2.apk --generate-notes
+   git tag v1.0.2
+   git push origin v1.0.2
    ```
+3. Actions tự build, ký bằng khóa cố định, kiểm tra vân tay chứng chỉ và tạo Release kèm `ChiTieu-1.0.2.apk`.
 
-> Không có `keystore.properties` thì bản release vẫn build được nhưng ký bằng debug key, không cài đè được lên bản chính thức.
+Khóa ký lấy từ 4 secret của repo: `SIGNING_KEYSTORE_BASE64`, `SIGNING_STORE_PASSWORD`, `SIGNING_KEY_ALIAS`, `SIGNING_KEY_PASSWORD`. Thiếu khóa hoặc khóa sai thì workflow dừng, không phát hành bản ký sai.
+
+> Build trên máy: tạo `keystore.properties` ở thư mục gốc (đã bị `.gitignore` chặn) với `storeFile`, `storePassword`, `keyAlias`, `keyPassword`. Không có file này thì bản release ký bằng debug key, không cài đè được lên bản chính thức.
 
 ## 📄 Giấy phép
 
